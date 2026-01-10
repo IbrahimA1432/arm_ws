@@ -1,0 +1,17 @@
+# ROS 2 / colcon
+build/
+install/
+log/
+
+# VSCode / editors
+.vscode/
+*.swp
+*~
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS junk
+.DS_Store
+Thumbs.db
