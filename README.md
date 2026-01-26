@@ -1,3 +1,1 @@
-ROS2 URDF for a 6dof robotic arm 
-
-Originally created by Automatic Addison
+ROS2 workspace containing all work done on controlling a mini 6dof robotic arm using ros2_control
