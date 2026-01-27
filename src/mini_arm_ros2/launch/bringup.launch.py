@@ -10,7 +10,14 @@ def generate_launch_description():
 
     with open(urdf_path, "r") as f:
         robot_description = f.read()
-
+        
+    rviz = Node(
+    	package='rviz2',
+    	executable='rviz2',
+    	name='rviz2',
+    	output='screen',
+    )
+    
     ros2_control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
@@ -44,4 +51,5 @@ def generate_launch_description():
         ros2_control_node,
         spawner_jsb,
         spawner_arm,
+        rviz,
     ])
