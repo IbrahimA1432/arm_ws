@@ -42,5 +42,15 @@ install(DIRECTORY urdf config launch
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  scripts/fk_tf_broadcaster.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+  scripts/ikpy_ik_node.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
 
