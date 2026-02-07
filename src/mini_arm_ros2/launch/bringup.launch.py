@@ -1,4 +1,5 @@
 from launch import LaunchDescription
+from launch.actions import TimerAction
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import os
@@ -10,14 +11,14 @@ def generate_launch_description():
 
     with open(urdf_path, "r") as f:
         robot_description = f.read()
-        
+
     rviz = Node(
-    	package='rviz2',
-    	executable='rviz2',
-    	name='rviz2',
-    	output='screen',
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
     )
-    
+
     ros2_control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
@@ -46,10 +47,34 @@ def generate_launch_description():
         output="screen",
     )
 
+    joy_node = Node(
+        package="joy",
+        executable="joy_node",
+        name="joy_node",
+        output="screen",
+        parameters=[{
+            "deadzone": 0.05,
+            "autorepeat_rate": 30.0,
+        }],
+    )
+
+    ps5_teleop = Node(
+        package="mini_arm_teleop",
+        executable="ps5_arm_teleop",
+        name="ps5_arm_teleop",
+        output="screen",
+        parameters=[{
+            "cmd_topic": "/arm_forward_controller/commands",
+        }],
+    )
+
     return LaunchDescription([
         robot_state_publisher,
         ros2_control_node,
         spawner_jsb,
         spawner_arm,
         rviz,
+        joy_node,
+        TimerAction(period=1.0, actions=[ps5_teleop]),
     ])
+
