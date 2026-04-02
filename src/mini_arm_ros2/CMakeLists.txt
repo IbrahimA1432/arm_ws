@@ -12,10 +12,13 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
-include_directories(include)
-
 add_library(mini_arm_ros2 SHARED
-  src/arm_pca9685_system.cpp
+  src/mini_arm_hardware.cpp
+)
+
+target_include_directories(mini_arm_ros2 PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
 )
 
 ament_target_dependencies(mini_arm_ros2
@@ -44,16 +47,7 @@ install(DIRECTORY urdf config launch
 
 install(PROGRAMS
   scripts/fk_tf_broadcaster.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(PROGRAMS
   scripts/ikpy_ik_node.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(PROGRAMS
-  scripts/cartesian_ik_teleop.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

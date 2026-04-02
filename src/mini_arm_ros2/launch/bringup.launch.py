@@ -19,17 +19,17 @@ def generate_launch_description():
         output="screen",
     )
 
-    ros2_control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[{"robot_description": robot_description}, controllers_path],
-        output="screen",
-    )
-
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
         parameters=[{"robot_description": robot_description}],
+        output="screen",
+    )
+
+    ros2_control_node = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        parameters=[{"robot_description": robot_description}, controllers_path],
         output="screen",
     )
 
@@ -46,25 +46,16 @@ def generate_launch_description():
         arguments=["arm_forward_controller", "--controller-manager", "/controller_manager"],
         output="screen",
     )
-
+    
     joy_node = Node(
         package="joy",
         executable="joy_node",
         name="joy_node",
         output="screen",
         parameters=[{
+            "dev": "/dev/input/js0",
             "deadzone": 0.05,
-            "autorepeat_rate": 30.0,
-        }],
-    )
-
-    ps5_teleop = Node(
-        package="mini_arm_teleop",
-        executable="ps5_arm_teleop",
-        name="ps5_arm_teleop",
-        output="screen",
-        parameters=[{
-            "cmd_topic": "/arm_forward_controller/commands",
+            "autorepeat_rate": 50.0,
         }],
     )
 
@@ -75,6 +66,5 @@ def generate_launch_description():
         spawner_arm,
         rviz,
         joy_node,
-        TimerAction(period=1.0, actions=[ps5_teleop]),
     ])
 

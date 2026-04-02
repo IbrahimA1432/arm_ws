@@ -16,7 +16,7 @@ from ikpy.chain import Chain
 
 
 HELP = """
-PS5 Cartesian IK teleop (ikpy) (no MoveIt)
+PS5 Cartesian IK teleop (ikpy)
 
 Publishes: /arm_forward_controller/commands  (Float64MultiArray, 6 joints)
 

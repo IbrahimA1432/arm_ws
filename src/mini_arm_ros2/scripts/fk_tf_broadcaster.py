@@ -44,10 +44,10 @@ class DhFkBroadcaster(Node):
 
         # Signs and offsets (radians)
         # You said shoulder needs flipping, so default shoulder sign = -1.
-        self.declare_parameter("signs", [1.0, -1.0, 1.0, 1.0, 1.0])
+        self.declare_parameter("signs", [-1.0, 1.0, 1.0, 1.0, 1.0])
         self.declare_parameter("offsets_rad", [0.0, 0.0, 0.0, 0.0, 0.0])
 
-        self.base_frame = "base_link"
+        self.base_frame = "tool0"
         self.child_frame = "dh_tool0"
 
         self.tf_broadcaster = TransformBroadcaster(self)

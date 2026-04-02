@@ -28,13 +28,13 @@ class MiniArmIkpyIK(Node):
     def __init__(self):
         super().__init__("mini_arm_ikpy_ik")
 
-        # Parameters you may want to tweak
+        # Parameters we may want to tweak
         self.declare_parameter("urdf_pkg", "mini_arm_ros2")
         self.declare_parameter("urdf_relpath", "urdf/mini_arm.urdf")
         self.declare_parameter("base_link", "base_link")
         self.declare_parameter("ee_link", "end_base")
 
-        # Your ros2_control joint order
+        # ros2_control joint order
         self.joint_order = [
             "base_rotator_joint",
             "shoulder_joint",
@@ -48,12 +48,12 @@ class MiniArmIkpyIK(Node):
         # Start with all +1 and 0, then adjust if a joint moves opposite or has a 90-degree neutral.
         self.sign = np.array([1, 1, 1, 1, 1, 1], dtype=float)
 
-        # If your "neutral" physical pose is servos at 90 degrees, you often need offsets.
+        # If "neutral" physical pose is servos at 90 degrees, we often need offsets.
         # Offsets are in radians added after sign flip:
         # q_cmd = sign*q_ik + offset
         self.offset = np.array([0, 0, 0, 0, 0, 0], dtype=float)
 
-        # Safety joint limits (radians). Replace with your real limits if different.
+        # Safety joint limits (radians).
         self.limits_lo = np.array([-1.57, -1.57, -1.57, -1.57, -1.57, -1.57], dtype=float)
         self.limits_hi = np.array([ 1.57,  1.57,  1.57,  1.57,  1.57,  1.57], dtype=float)
 
