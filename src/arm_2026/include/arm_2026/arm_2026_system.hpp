@@ -56,8 +56,8 @@ public:
 private:
   void actuator_state_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg);
 
-  double radians_to_phidget_counts(double radians) const;
-  double phidget_counts_to_radians(double counts) const;
+  double radians_to_phidget_position(double radians) const;
+  double phidget_position_to_radians(double position) const;
   bool phidget_ok(PhidgetReturnCode code, const char * context) const;
 
   std::vector<double> hw_commands_;
@@ -97,14 +97,16 @@ private:
 
   // Standard 1.8 deg stepper -> 200 full steps/rev
   // Phidget stepper default microstepping is 1/16
-  // No gearbox assumed for now
+  // Base output uses the measured Phidget rescale factor below.
   double base_steps_per_rev_ = 200.0;
   double base_microstep_factor_ = 16.0;
-  double base_gear_ratio_ = 1.0;
+  double base_gear_ratio_ = 27.0;
+  double base_rescale_factor_deg_ = 0.00416666667;
 
-  // Motion tuning, in Phidget count units unless rescale factor is used
-  double base_velocity_limit_counts_ = 2000.0;
-  double base_acceleration_counts_ = 4000.0;
+  // Keep the hardware profile aligned with the base joint URDF limit of 1.0 rad/s.
+  // The Phidget is rescaled to output-shaft degrees, so convert here once.
+  double base_velocity_limit_deg_ = 180.0 / M_PI;
+  double base_acceleration_deg_ = 360.0 / M_PI;
 };
 
 }  // namespace arm_2026

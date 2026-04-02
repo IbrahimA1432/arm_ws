@@ -94,18 +94,14 @@ bool Arm2026System::phidget_ok(PhidgetReturnCode code, const char * context) con
   return false;
 }
 
-double Arm2026System::radians_to_phidget_counts(double radians) const
+double Arm2026System::radians_to_phidget_position(double radians) const
 {
-  const double counts_per_rev =
-    base_steps_per_rev_ * base_microstep_factor_ * base_gear_ratio_;
-  return radians * counts_per_rev / (2.0 * M_PI);
+  return radians * 180.0 / M_PI;
 }
 
-double Arm2026System::phidget_counts_to_radians(double counts) const
+double Arm2026System::phidget_position_to_radians(double position) const
 {
-  const double counts_per_rev =
-    base_steps_per_rev_ * base_microstep_factor_ * base_gear_ratio_;
-  return counts * (2.0 * M_PI) / counts_per_rev;
+  return position * M_PI / 180.0;
 }
 
 hardware_interface::CallbackReturn Arm2026System::on_configure(
@@ -175,12 +171,20 @@ hardware_interface::CallbackReturn Arm2026System::on_configure(
   }
 
   base_stepper_attached_ = true;
+  if (!phidget_ok(
+        PhidgetStepper_setRescaleFactor(base_stepper_, base_rescale_factor_deg_),
+        "PhidgetStepper_setRescaleFactor"))
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
   RCLCPP_INFO(
     rclcpp::get_logger("Arm2026System"),
-    "Base Phidget attached on serial %d, hub port %d, channel %d",
+    "Base Phidget attached on serial %d, hub port %d, channel %d with rescale factor %.11f deg/step",
     base_device_serial_,
     base_hub_port_,
-    base_channel_);
+    base_channel_,
+    base_rescale_factor_deg_);
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -200,14 +204,14 @@ hardware_interface::CallbackReturn Arm2026System::on_activate(
   if (base_stepper_ != nullptr && base_stepper_attached_)
   {
     if (!phidget_ok(
-          PhidgetStepper_setAcceleration(base_stepper_, base_acceleration_counts_),
+          PhidgetStepper_setAcceleration(base_stepper_, base_acceleration_deg_),
           "PhidgetStepper_setAcceleration"))
     {
       return hardware_interface::CallbackReturn::ERROR;
     }
 
     if (!phidget_ok(
-          PhidgetStepper_setVelocityLimit(base_stepper_, base_velocity_limit_counts_),
+          PhidgetStepper_setVelocityLimit(base_stepper_, base_velocity_limit_deg_),
           "PhidgetStepper_setVelocityLimit"))
     {
       return hardware_interface::CallbackReturn::ERROR;
@@ -220,19 +224,19 @@ hardware_interface::CallbackReturn Arm2026System::on_activate(
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    double current_counts = 0.0;
+    double current_position = 0.0;
     if (!phidget_ok(
-          PhidgetStepper_getPosition(base_stepper_, &current_counts),
+          PhidgetStepper_getPosition(base_stepper_, &current_position),
           "PhidgetStepper_getPosition"))
     {
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    hw_states_[0] = phidget_counts_to_radians(current_counts);
+    hw_states_[0] = phidget_position_to_radians(current_position);
     hw_commands_[0] = hw_states_[0];
 
     if (!phidget_ok(
-          PhidgetStepper_setTargetPosition(base_stepper_, current_counts),
+          PhidgetStepper_setTargetPosition(base_stepper_, current_position),
           "PhidgetStepper_setTargetPosition"))
     {
       return hardware_interface::CallbackReturn::ERROR;
@@ -302,12 +306,12 @@ hardware_interface::return_type Arm2026System::read(
   // ----- Joint 0: base_yaw from real Phidget -----
   if (base_stepper_ != nullptr && base_stepper_attached_)
   {
-    double current_counts = 0.0;
+    double current_position = 0.0;
     if (phidget_ok(
-          PhidgetStepper_getPosition(base_stepper_, &current_counts),
+          PhidgetStepper_getPosition(base_stepper_, &current_position),
           "PhidgetStepper_getPosition"))
     {
-      hw_states_[0] = phidget_counts_to_radians(current_counts);
+      hw_states_[0] = phidget_position_to_radians(current_position);
     }
   }
 
@@ -338,9 +342,9 @@ hardware_interface::return_type Arm2026System::write(
   // ----- Base to Phidget -----
   if (base_stepper_ != nullptr && base_stepper_attached_)
   {
-    const double target_counts = radians_to_phidget_counts(hw_commands_[0]);
+    const double target_position = radians_to_phidget_position(hw_commands_[0]);
     phidget_ok(
-      PhidgetStepper_setTargetPosition(base_stepper_, target_counts),
+      PhidgetStepper_setTargetPosition(base_stepper_, target_position),
       "PhidgetStepper_setTargetPosition");
   }
 

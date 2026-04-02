@@ -10,6 +10,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(controller_manager REQUIRED)
 find_package(robot_state_publisher REQUIRED)
@@ -19,6 +20,10 @@ find_library(PHIDGET22_LIB phidget22 REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/arm_2026_system.cpp
+)
+
+add_executable(arm_2026_keyboard_teleop
+  arm_2026/keyboard_teleop.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -31,6 +36,12 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp_lifecycle
   hardware_interface
   pluginlib
+  std_msgs
+)
+
+ament_target_dependencies(arm_2026_keyboard_teleop
+  rclcpp
+  sensor_msgs
   std_msgs
 )
 
@@ -54,10 +65,11 @@ install(
 
 install(
   TARGETS ${PROJECT_NAME}
+  arm_2026_keyboard_teleop
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 install(
@@ -71,6 +83,7 @@ ament_export_dependencies(
   rclcpp_lifecycle
   hardware_interface
   pluginlib
+  sensor_msgs
   std_msgs
 )
 

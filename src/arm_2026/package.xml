@@ -17,6 +17,7 @@
   <depend>robot_state_publisher</depend>
   <depend>xacro</depend>
   <depend>rviz2</depend>
+  <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
 
   <export>
